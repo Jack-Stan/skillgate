@@ -139,7 +139,9 @@ def plan(config: Config) -> Plan:
 def apply(result: Plan) -> None:
     for change in result.changes:
         change.path.parent.mkdir(parents=True, exist_ok=True)
-        change.path.write_text(change.new, encoding="utf-8")
+        # newline="\n": generated files are LF on every platform, or Windows
+        # builds would churn every file against an LF checkout.
+        change.path.write_text(change.new, encoding="utf-8", newline="\n")
 
 
 def render_index(skills: list[dict[str, Any]]) -> str:

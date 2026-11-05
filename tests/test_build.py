@@ -237,3 +237,15 @@ def test_bad_routing_json_is_a_usage_error_and_writes_nothing(demo):
     assert result.code == 2
     assert "invalid JSON" in result.out
     assert demo.snapshot() == before
+
+
+def test_written_files_use_lf_on_every_platform(demo):
+    for name in ("index.json", "SKILLS.md", ".skillgate-lock.json"):
+        (demo.skills / name).unlink()
+    vendored = demo.skill_md("markdown-tables")
+    vendored.write_text((demo.root / "upstream/markdown-tables/SKILL.md").read_text())
+
+    assert demo.run("build").code == 0
+    for path in [vendored, *(demo.skills / n for n in ("index.json", "SKILLS.md"))]:
+        assert b"\r" not in path.read_bytes(), path
+    assert b"\r" not in (demo.root / LOCK).read_bytes()
