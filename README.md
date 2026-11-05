@@ -49,7 +49,7 @@ skillgate check                     # exit 0
 ## In your own project
 
 ```bash
-python -m pip install git+https://github.com/Jack-Stan/skillgate
+python -m pip install git+https://github.com/Jack-Stan/skillgate@v0.1.0
 skillgate lint                      # every skill without a routing entry is listed
 ```
 
@@ -181,7 +181,7 @@ Every rule runs to completion, so one run reports every problem.
 GitHub Actions:
 
 ```yaml
-- run: python -m pip install git+https://github.com/Jack-Stan/skillgate@main
+- run: python -m pip install git+https://github.com/Jack-Stan/skillgate@v0.1.0
 - run: skillgate lint
 - run: skillgate check --diff
 ```
@@ -191,7 +191,7 @@ pre-commit:
 ```yaml
 repos:
   - repo: https://github.com/Jack-Stan/skillgate
-    rev: main  # pin a tag once one exists
+    rev: v0.1.0
     hooks:
       - id: skillgate-lint
       - id: skillgate-check
