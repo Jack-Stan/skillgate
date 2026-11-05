@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Documentation
+
+- README: migration notes for projects replacing their own index script
+  (`index.json` shape, `path` field, keys that are not copied, lock file).
+
 ## [0.2.0] - 2026-11-05
 
 ### Added

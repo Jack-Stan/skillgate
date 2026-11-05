@@ -48,8 +48,11 @@ skillgate check                     # exit 0
 
 ## In your own project
 
+> Install commands pin commit `0ab94c4`, which is v0.2.0. Tagged releases are
+> coming; these will switch to `@v0.2.0` once the tag exists.
+
 ```bash
-python -m pip install git+https://github.com/Jack-Stan/skillgate@v0.2.0
+python -m pip install git+https://github.com/Jack-Stan/skillgate@0ab94c4616492eaccdb4a0b783f0695b92fd8cf9
 skillgate init                      # routing.json with an entry per existing skill
 ```
 
@@ -67,6 +70,33 @@ skills and never changes existing ones.
 
 Commit the result, including `index.json`, `SKILLS.md` and
 `.skillgate-lock.json`. From then on, run `skillgate check` in CI.
+
+### Migrating from your own index script
+
+If a home-grown script already writes `index.json`, check what reads it
+before you switch. skillgate's index has a fixed shape:
+
+```json
+{
+  "version": 1,
+  "count": 5,
+  "categories": ["database", "docs"],
+  "skills": [
+    {"name": "...", "description": "...", "category": "...", "owner": "...",
+     "path": ".claude/skills/<name>/SKILL.md"}
+  ]
+}
+```
+
+- The SKILL.md location is `path`, relative to the project root. Scripts
+  often call it `entrypoint`.
+- Only `name`, `description`, `category`, `owner` and `path` are emitted.
+  Extra frontmatter keys such as `auto-activate` or `triggers` stay in each
+  SKILL.md but are not copied into the index.
+- Skills are sorted by name, not grouped by category.
+- The lock file is `.skillgate-lock.json` and has its own format. An older
+  script's lock can be deleted; the first `skillgate build` rebuilds the
+  lock from the skill files without changing them.
 
 ## Commands
 
@@ -191,7 +221,7 @@ Every rule runs to completion, so one run reports every problem.
 GitHub Actions:
 
 ```yaml
-- run: python -m pip install git+https://github.com/Jack-Stan/skillgate@v0.2.0
+- run: python -m pip install git+https://github.com/Jack-Stan/skillgate@0ab94c4616492eaccdb4a0b783f0695b92fd8cf9
 - run: skillgate lint
 - run: skillgate check --diff
 ```
@@ -201,7 +231,7 @@ pre-commit:
 ```yaml
 repos:
   - repo: https://github.com/Jack-Stan/skillgate
-    rev: v0.2.0
+    rev: 0ab94c4616492eaccdb4a0b783f0695b92fd8cf9  # v0.2.0
     hooks:
       - id: skillgate-lint
       - id: skillgate-check
