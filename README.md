@@ -216,6 +216,18 @@ ruff check .
 ruff format --check .
 ```
 
+## Releasing
+
+1. Open a PR that bumps `version` in `pyproject.toml` and
+   `src/skillgate/__init__.py` and dates the `CHANGELOG.md` section. Merge it.
+2. Go to **Actions → Release → Run workflow** and enter the tag (for example
+   `v0.3.0`) and the full SHA of the merge commit.
+
+The workflow checks that the commit is on `main`, that `pyproject.toml`
+there has the matching version, and that the tag doesn't exist yet. It then
+creates the tag and a GitHub Release, using that version's changelog section
+as the notes.
+
 ## Roadmap
 
 - **v0.3:** routing evals. Run sample prompts against the real skill set and

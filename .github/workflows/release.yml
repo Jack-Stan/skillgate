@@ -1,0 +1,59 @@
+name: Release
+
+# Started by hand from the Actions tab: tags a commit and publishes a GitHub
+# Release whose notes are that version's section of CHANGELOG.md.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to create, e.g. v0.2.0"
+        required: true
+      sha:
+        description: "Full 40-character commit SHA to tag"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # create the tag and the release; nothing else
+    env:
+      TAG: ${{ inputs.tag }}
+      SHA: ${{ inputs.sha }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.sha }}
+          fetch-depth: 0
+
+      - name: Validate inputs
+        run: |
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::tag must look like v1.2.3"; exit 1; }
+          [[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::sha must be a full 40-character commit SHA"; exit 1; }
+          git merge-base --is-ancestor "$SHA" origin/main || { echo "::error::$SHA is not on main"; exit 1; }
+          version=$(sed -n 's/^version = "\(.*\)"$/\1/p' pyproject.toml)
+          [[ "v$version" == "$TAG" ]] || { echo "::error::pyproject.toml at $SHA says $version, not ${TAG#v}"; exit 1; }
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
+            echo "::error::$TAG already exists"; exit 1
+          fi
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          version="${TAG#v}"
+          awk -v v="$version" '
+            index($0, "## [" v "]") == 1 { on = 1; next }
+            on && /^## \[/ { exit }
+            on && /^\[[^]]+\]: / { exit }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          [[ -s notes.md ]] || { echo "::error::no CHANGELOG.md section for $version"; exit 1; }
+          cat notes.md
+
+      - name: Create tag and release
+        run: |
+          gh release create "$TAG" --target "$SHA" --title "skillgate ${TAG#v}" --notes-file notes.md
+          echo "Released $TAG at $SHA"
