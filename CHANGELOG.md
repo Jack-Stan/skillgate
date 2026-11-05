@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0] - unreleased
+## [0.1.0] - 2026-11-05
 
 ### Added
 
@@ -14,3 +14,5 @@
 - Configuration through `skillgate.toml` or `[tool.skillgate]`.
 - Example project in `examples/demo`, with a vendored skill.
 - pre-commit hook definitions.
+
+[0.1.0]: https://github.com/Jack-Stan/skillgate/releases/tag/v0.1.0
