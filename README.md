@@ -48,8 +48,11 @@ skillgate check                     # exit 0
 
 ## In your own project
 
+> Install commands pin commit `0ab94c4`, which is v0.2.0. Tagged releases are
+> coming; these will switch to `@v0.2.0` once the tag exists.
+
 ```bash
-python -m pip install git+https://github.com/Jack-Stan/skillgate@v0.2.0
+python -m pip install git+https://github.com/Jack-Stan/skillgate@0ab94c4616492eaccdb4a0b783f0695b92fd8cf9
 skillgate init                      # routing.json with an entry per existing skill
 ```
 
@@ -218,7 +221,7 @@ Every rule runs to completion, so one run reports every problem.
 GitHub Actions:
 
 ```yaml
-- run: python -m pip install git+https://github.com/Jack-Stan/skillgate@v0.2.0
+- run: python -m pip install git+https://github.com/Jack-Stan/skillgate@0ab94c4616492eaccdb4a0b783f0695b92fd8cf9
 - run: skillgate lint
 - run: skillgate check --diff
 ```
@@ -228,7 +231,7 @@ pre-commit:
 ```yaml
 repos:
   - repo: https://github.com/Jack-Stan/skillgate
-    rev: v0.2.0
+    rev: 0ab94c4616492eaccdb4a0b783f0695b92fd8cf9  # v0.2.0
     hooks:
       - id: skillgate-lint
       - id: skillgate-check
