@@ -11,6 +11,7 @@ from pathlib import Path
 from skillgate import __version__
 from skillgate.build import Plan, apply, plan
 from skillgate.config import Config, ConfigError, load_config
+from skillgate.init import plan_init
 from skillgate.lint import lint
 from skillgate.routing import RoutingError
 
@@ -45,6 +46,10 @@ def _parser() -> argparse.ArgumentParser:
     )
     sub = parser.add_subparsers(dest="command", required=True, metavar="COMMAND")
 
+    p = sub.add_parser("init", help="create routing.json, or add entries for new skills")
+    p.add_argument("--dry-run", action="store_true", help="print the result, write nothing")
+    p.set_defaults(handler=cmd_init)
+
     p = sub.add_parser("lint", help="validate SKILL.md frontmatter and routing entries")
     p.set_defaults(handler=cmd_lint)
 
@@ -55,6 +60,26 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--diff", action="store_true", help="show a unified diff of each drift")
     p.set_defaults(handler=cmd_check)
     return parser
+
+
+def cmd_init(config: Config, args: argparse.Namespace) -> int:
+    result = plan_init(config)
+    where = config.rel(result.path)
+    if result.text is None:
+        print(f"init: every skill already has an entry in {where}")
+        return EXIT_OK
+    if args.dry_run:
+        print(result.text, end="")
+        return EXIT_OK
+    result.path.parent.mkdir(parents=True, exist_ok=True)
+    result.path.write_text(result.text, encoding="utf-8", newline="\n")
+    for name in result.added:
+        print(f"added {name}")
+    print(
+        f"init: wrote {where} ({len(result.added)} new entries). "
+        "Fill in each `avoid` list, then run: skillgate build"
+    )
+    return EXIT_OK
 
 
 def cmd_lint(config: Config, args: argparse.Namespace) -> int:

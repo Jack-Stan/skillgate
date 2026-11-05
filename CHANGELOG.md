@@ -4,6 +4,9 @@
 
 ### Added
 
+- `skillgate init [--dry-run]`: creates `routing.json` from the skills on
+  disk, seeded from their current category and owner, or adds entries for
+  new skills to an existing file without changing the others.
 - Lint rule SG011: a list-form `avoid` item ending in `(skill-name)` must
   name an existing skill other than the skill itself.
 
