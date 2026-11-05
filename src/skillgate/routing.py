@@ -15,6 +15,7 @@ description instead, so the result is the same.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -32,6 +33,21 @@ class Route:
     category: str | None = None
     owner: str | None = None
     clause: str = ""
+    # Skill names this route points the reader to instead, from list-form
+    # `avoid` items that end in "(skill-name)".
+    references: tuple[str, ...] = ()
+
+
+# A list item's trailing "(skill-name)" names the sibling to use instead.
+_REFERENCE_RE = re.compile(r"\(([a-z0-9]+(?:-[a-z0-9]+)*)\)\.?$")
+
+
+def references(avoid: str | list[str] | None) -> tuple[str, ...]:
+    """Skill names referenced by a list-form ``avoid``. Strings are free text."""
+    if not isinstance(avoid, list):
+        return ()
+    found = (_REFERENCE_RE.search(" ".join(item.split())) for item in avoid)
+    return tuple(m.group(1) for m in found if m)
 
 
 @dataclass(frozen=True)
@@ -144,7 +160,10 @@ def _parse_route(path: Path, name: str, entry: Any) -> Route:
     ):
         raise RoutingError(f"{where}.avoid: expected a string or a list of strings")
     return Route(
-        category=entry.get("category"), owner=entry.get("owner"), clause=avoid_clause(avoid)
+        category=entry.get("category"),
+        owner=entry.get("owner"),
+        clause=avoid_clause(avoid),
+        references=references(avoid),
     )
 
 

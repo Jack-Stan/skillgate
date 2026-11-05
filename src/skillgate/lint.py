@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from skillgate.config import Config
-from skillgate.routing import RoutingError, load_routing
+from skillgate.routing import Route, RoutingError, load_routing
 from skillgate.skills import (
     MAX_NAME_LENGTH,
     NAME_RE,
@@ -27,6 +27,7 @@ RULES = {
     "SG008": "skill has no routing entry",
     "SG009": "routing entry has no skill folder",
     "SG010": "routing file is missing or invalid",
+    "SG011": "avoid clause points to a skill that does not exist",
 }
 
 
@@ -51,7 +52,7 @@ def lint(config: Config) -> list[Finding]:
         add(config.rel(config.skills_dir), "SG001", "skills folder not found")
         return findings
 
-    routes: dict[str, object] | None
+    routes: dict[str, Route] | None
     try:
         routes = load_routing(config.routing, required=config.require_routing)
     except RoutingError as exc:
@@ -112,5 +113,15 @@ def lint(config: Config) -> list[Finding]:
         names = {f.name for f in folders}
         for orphan in sorted(set(routes) - names):
             add(config.rel(config.routing), "SG009", f"'{orphan}' has no skill folder")
+        for name, route in sorted(routes.items()):
+            for ref in route.references:
+                if ref == name:
+                    add(config.rel(config.routing), "SG011", f"'{name}' points to itself")
+                elif ref not in names:
+                    add(
+                        config.rel(config.routing),
+                        "SG011",
+                        f"'{name}' points to '{ref}', which is not a skill",
+                    )
 
     return sorted(findings)

@@ -101,3 +101,11 @@ def test_corrupt_lock_is_a_note_not_an_error(tmp_path):
     entries, note = load_lock(path)
     assert entries == {}
     assert "unreadable" in note
+
+
+def test_references_from_list_form_only():
+    from skillgate.routing import references
+
+    assert references(["a (x-y)", "b (z).", "no ref here", "mid (q) text"]) == ("x-y", "z")
+    assert references("Don't use for a (x).") == ()
+    assert references(None) == ()
