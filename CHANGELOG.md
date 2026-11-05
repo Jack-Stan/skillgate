@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.2.0] - 2026-11-05
 
 ### Added
 
@@ -9,6 +9,10 @@
   new skills to an existing file without changing the others.
 - Lint rule SG011: a list-form `avoid` item ending in `(skill-name)` must
   name an existing skill other than the skill itself.
+
+### Changed
+
+- CI uses `actions/checkout@v5` and `actions/setup-python@v6` (Node 24).
 
 ## [0.1.0] - 2026-11-05
 
@@ -25,4 +29,5 @@
 - Example project in `examples/demo`, with a vendored skill.
 - pre-commit hook definitions.
 
+[0.2.0]: https://github.com/Jack-Stan/skillgate/releases/tag/v0.2.0
 [0.1.0]: https://github.com/Jack-Stan/skillgate/releases/tag/v0.1.0
