@@ -1,0 +1,11 @@
+# skillgate settings for this demo project. Every key is optional; these are
+# the defaults spelled out. Paths are relative to this file.
+skills_dir = ".claude/skills"
+routing = ".claude/skills/routing.json"
+lock = ".claude/skills/.skillgate-lock.json"
+index = ".claude/skills/index.json"
+registry = ".claude/skills/SKILLS.md"
+required_fields = ["name", "description"]
+description_min_length = 40
+description_max_length = 1024
+require_routing = true

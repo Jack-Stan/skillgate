@@ -1,0 +1,36 @@
+{
+  "_comment": "Routing overlay: category, owner and negative-routing clause per skill. Applied by `skillgate build`.",
+  "skills": {
+    "changelog-writer": {
+      "category": "release",
+      "owner": "docs-team",
+      "avoid": [
+        "user-facing announcements of a release (release-notes)",
+        "writing a single commit message (commit-message)"
+      ]
+    },
+    "release-notes": {
+      "category": "release",
+      "owner": "docs-team",
+      "avoid": ["updating CHANGELOG.md itself (changelog-writer)"]
+    },
+    "commit-message": {
+      "category": "git",
+      "owner": "platform",
+      "avoid": ["summarising a whole release (changelog-writer)"]
+    },
+    "sql-review": {
+      "category": "database",
+      "owner": "data-team",
+      "avoid": "Don't use for formatting query results as tables; that is markdown-tables."
+    },
+    "markdown-tables": {
+      "category": "docs",
+      "owner": "docs-team",
+      "avoid": [
+        "reviewing SQL that produced the table (sql-review)",
+        "changelog tables (changelog-writer)"
+      ]
+    }
+  }
+}

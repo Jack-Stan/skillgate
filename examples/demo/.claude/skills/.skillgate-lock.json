@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "changelog-writer": {
+      "base": "Update CHANGELOG.md from the commits merged since the last tag, grouped into Added, Changed, Fixed and Removed. Use when preparing a release or when asked to bring the changelog up to date.",
+      "clause": "Don't use for user-facing announcements of a release (release-notes) or writing a single commit message (commit-message)."
+    },
+    "commit-message": {
+      "base": "Draft a Conventional Commits message from the staged diff: type, optional scope, imperative summary under 72 characters, and a body that explains why. Use when the user asks for a commit message.",
+      "clause": "Don't use for summarising a whole release (changelog-writer)."
+    },
+    "markdown-tables": {
+      "base": "Align, sort and repair Markdown pipe tables, keeping cell content intact. Use whenever a Markdown table is malformed or hard to read.",
+      "clause": "Don't use for reviewing SQL that produced the table (sql-review) or changelog tables (changelog-writer)."
+    },
+    "release-notes": {
+      "base": "Write user-facing release notes for a tagged version: what changed for the reader, upgrade steps and known issues, in plain language. Use when a release is being announced.",
+      "clause": "Don't use for updating CHANGELOG.md itself (changelog-writer)."
+    },
+    "sql-review": {
+      "base": "Review SQL migrations before they run: table locks, missing indexes on new foreign keys, unsafe column type changes and irreversible steps. Use on any new or changed migration file.",
+      "clause": "Don't use for formatting query results as tables; that is markdown-tables."
+    }
+  }
+}
