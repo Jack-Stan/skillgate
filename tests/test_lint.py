@@ -118,6 +118,34 @@ def test_invalid_routing_file(empty):
     assert codes(empty) == ["SG010"]
 
 
+def _set_avoid(project, name, avoid):
+    path = project.skills / "routing.json"
+    data = json.loads(path.read_text())
+    data["skills"][name]["avoid"] = avoid
+    path.write_text(json.dumps(data))
+
+
+def test_avoid_reference_to_missing_skill(demo):
+    _set_avoid(demo, "release-notes", ["tweets (social-posts)", "changelogs (changelog-writer)."])
+    findings = lint(demo.config)
+    assert [(f.code, f.message) for f in findings] == [
+        ("SG011", "'release-notes' points to 'social-posts', which is not a skill")
+    ]
+
+
+def test_avoid_reference_to_itself(demo):
+    _set_avoid(demo, "release-notes", ["announcements (release-notes)"])
+    assert [f.message for f in lint(demo.config)] == ["'release-notes' points to itself"]
+
+
+def test_avoid_free_text_is_not_parsed(demo):
+    # Only list items ending in "(skill-name)" are references; prose is left alone.
+    _set_avoid(demo, "release-notes", ["speech output (text-to-speech) for podcasts"])
+    assert codes(demo) == []
+    _set_avoid(demo, "release-notes", "Don't use for audio (text-to-speech).")
+    assert codes(demo) == []
+
+
 def test_all_rules_run_and_are_reported(empty):
     # One file breaking several rules reports every one of them, not just the first.
     empty.write_skill("Bad", "name: other\ndescription: short\n")
@@ -130,4 +158,4 @@ def test_all_rules_run_and_are_reported(empty):
 
 
 def test_every_rule_is_documented():
-    assert sorted(RULES) == [f"SG{n:03d}" for n in range(1, 11)]
+    assert sorted(RULES) == [f"SG{n:03d}" for n in range(1, 12)]

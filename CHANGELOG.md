@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Lint rule SG011: a list-form `avoid` item ending in `(skill-name)` must
+  name an existing skill other than the skill itself.
+
 ## [0.1.0] - 2026-11-05
 
 ### Added

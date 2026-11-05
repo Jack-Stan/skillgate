@@ -101,7 +101,9 @@ asserts that property.
   skillgate doesn't touch it.
 - `avoid` takes a list or a string. A list becomes one generated sentence,
   `Don't use for A or B.`; a string is used verbatim. The clause is appended
-  to the skill's own description.
+  to the skill's own description. End a list item with `(skill-name)` to
+  name the sibling to use instead; lint checks that the sibling exists
+  (SG011). String clauses are free text and aren't checked.
 - Unknown keys are an error, so a typo such as `categroy` can't slip through.
   Keys that start with `_` are ignored and can hold comments.
 
@@ -173,6 +175,7 @@ require_routing = true      # false: skills without an entry are fine, and routi
 | SG008 | skill has no entry in `routing.json` |
 | SG009 | `routing.json` entry has no skill folder |
 | SG010 | `routing.json` is missing or invalid |
+| SG011 | a list-form `avoid` item ends in `(skill-name)` naming a skill that doesn't exist, or the skill itself |
 
 Every rule runs to completion, so one run reports every problem.
 
@@ -211,7 +214,6 @@ ruff format --check .
 - **v0.2:** routing evals. Run sample prompts against the real skill set and
   report which skill was chosen, so collisions show up as failing cases rather
   than as hunches. This needs an API key, so it will be opt-in.
-- Lint that every skill named in an `avoid` clause exists.
 - An init command that scaffolds `routing.json` from existing skills.
 
 skillgate doesn't rewrite your descriptions for you, and that isn't planned.
