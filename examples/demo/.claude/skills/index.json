@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "count": 5,
+  "categories": [
+    "database",
+    "docs",
+    "git",
+    "release"
+  ],
+  "skills": [
+    {
+      "name": "changelog-writer",
+      "description": "Update CHANGELOG.md from the commits merged since the last tag, grouped into Added, Changed, Fixed and Removed. Use when preparing a release or when asked to bring the changelog up to date. Don't use for user-facing announcements of a release (release-notes) or writing a single commit message (commit-message).",
+      "category": "release",
+      "owner": "docs-team",
+      "path": ".claude/skills/changelog-writer/SKILL.md"
+    },
+    {
+      "name": "commit-message",
+      "description": "Draft a Conventional Commits message from the staged diff: type, optional scope, imperative summary under 72 characters, and a body that explains why. Use when the user asks for a commit message. Don't use for summarising a whole release (changelog-writer).",
+      "category": "git",
+      "owner": "platform",
+      "path": ".claude/skills/commit-message/SKILL.md"
+    },
+    {
+      "name": "markdown-tables",
+      "description": "Align, sort and repair Markdown pipe tables, keeping cell content intact. Use whenever a Markdown table is malformed or hard to read. Don't use for reviewing SQL that produced the table (sql-review) or changelog tables (changelog-writer).",
+      "category": "docs",
+      "owner": "docs-team",
+      "path": ".claude/skills/markdown-tables/SKILL.md"
+    },
+    {
+      "name": "release-notes",
+      "description": "Write user-facing release notes for a tagged version: what changed for the reader, upgrade steps and known issues, in plain language. Use when a release is being announced. Don't use for updating CHANGELOG.md itself (changelog-writer).",
+      "category": "release",
+      "owner": "docs-team",
+      "path": ".claude/skills/release-notes/SKILL.md"
+    },
+    {
+      "name": "sql-review",
+      "description": "Review SQL migrations before they run: table locks, missing indexes on new foreign keys, unsafe column type changes and irreversible steps. Use on any new or changed migration file. Don't use for formatting query results as tables; that is markdown-tables.",
+      "category": "database",
+      "owner": "data-team",
+      "path": ".claude/skills/sql-review/SKILL.md"
+    }
+  ]
+}

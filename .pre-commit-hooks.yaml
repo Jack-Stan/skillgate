@@ -1,0 +1,15 @@
+- id: skillgate-lint
+  name: skillgate lint
+  description: Validate SKILL.md frontmatter and routing entries.
+  entry: skillgate lint
+  language: python
+  pass_filenames: false
+  always_run: true
+
+- id: skillgate-check
+  name: skillgate check
+  description: Fail if skills, index, registry or lock are out of sync with routing.json.
+  entry: skillgate check
+  language: python
+  pass_filenames: false
+  always_run: true
