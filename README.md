@@ -49,7 +49,7 @@ skillgate check                     # exit 0
 ## In your own project
 
 ```bash
-python -m pip install git+https://github.com/Jack-Stan/skillgate@v0.1.0
+python -m pip install git+https://github.com/Jack-Stan/skillgate@v0.2.0
 skillgate init                      # routing.json with an entry per existing skill
 ```
 
@@ -62,8 +62,7 @@ skillgate lint
 skillgate build
 ```
 
-`init` is not in v0.1.0 yet. Until the next release, install from `main` to
-get it. Run `init` again whenever you add skills: it appends entries for new
+Run `init` again whenever you add skills: it appends entries for new
 skills and never changes existing ones.
 
 Commit the result, including `index.json`, `SKILLS.md` and
@@ -192,7 +191,7 @@ Every rule runs to completion, so one run reports every problem.
 GitHub Actions:
 
 ```yaml
-- run: python -m pip install git+https://github.com/Jack-Stan/skillgate@v0.1.0
+- run: python -m pip install git+https://github.com/Jack-Stan/skillgate@v0.2.0
 - run: skillgate lint
 - run: skillgate check --diff
 ```
@@ -202,7 +201,7 @@ pre-commit:
 ```yaml
 repos:
   - repo: https://github.com/Jack-Stan/skillgate
-    rev: v0.1.0
+    rev: v0.2.0
     hooks:
       - id: skillgate-lint
       - id: skillgate-check
@@ -219,7 +218,7 @@ ruff format --check .
 
 ## Roadmap
 
-- **v0.2:** routing evals. Run sample prompts against the real skill set and
+- **v0.3:** routing evals. Run sample prompts against the real skill set and
   report which skill was chosen, so collisions show up as failing cases rather
   than as hunches. This needs an API key, so it will be opt-in.
 
