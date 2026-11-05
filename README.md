@@ -50,14 +50,21 @@ skillgate check                     # exit 0
 
 ```bash
 python -m pip install git+https://github.com/Jack-Stan/skillgate@v0.1.0
-skillgate lint                      # every skill without a routing entry is listed
+skillgate init                      # routing.json with an entry per existing skill
 ```
 
-Add a `.claude/skills/routing.json` with an entry per skill, then:
+`init` seeds each entry from the skill's current `category` and `owner`, so
+the first build leaves every `SKILL.md` untouched. Fill in the `avoid` lists,
+then:
 
 ```bash
+skillgate lint
 skillgate build
 ```
+
+`init` is not in v0.1.0 yet. Until the next release, install from `main` to
+get it. Run `init` again whenever you add skills: it appends entries for new
+skills and never changes existing ones.
 
 Commit the result, including `index.json`, `SKILLS.md` and
 `.skillgate-lock.json`. From then on, run `skillgate check` in CI.
@@ -66,6 +73,7 @@ Commit the result, including `index.json`, `SKILLS.md` and
 
 | Command | What it does | Exit code |
 |---|---|---|
+| `skillgate init [--dry-run]` | Creates `routing.json`, or adds an entry for each skill that has none. Existing entries are never changed. | 0 |
 | `skillgate lint` | Validates frontmatter and routing entries (rules below). Read-only. | 1 on any finding |
 | `skillgate build` | Applies `routing.json` into each `SKILL.md`; rewrites `index.json`, `SKILLS.md` and the lock. | 1 if a problem was found (for example a skill with no routing entry) |
 | `skillgate check [--diff]` | Plans a build and writes nothing. | 1 if a build would change any file |
@@ -214,7 +222,6 @@ ruff format --check .
 - **v0.2:** routing evals. Run sample prompts against the real skill set and
   report which skill was chosen, so collisions show up as failing cases rather
   than as hunches. This needs an API key, so it will be opt-in.
-- An init command that scaffolds `routing.json` from existing skills.
 
 skillgate doesn't rewrite your descriptions for you, and that isn't planned.
 
