@@ -68,6 +68,33 @@ skills and never changes existing ones.
 Commit the result, including `index.json`, `SKILLS.md` and
 `.skillgate-lock.json`. From then on, run `skillgate check` in CI.
 
+### Migrating from your own index script
+
+If a home-grown script already writes `index.json`, check what reads it
+before you switch. skillgate's index has a fixed shape:
+
+```json
+{
+  "version": 1,
+  "count": 5,
+  "categories": ["database", "docs"],
+  "skills": [
+    {"name": "...", "description": "...", "category": "...", "owner": "...",
+     "path": ".claude/skills/<name>/SKILL.md"}
+  ]
+}
+```
+
+- The SKILL.md location is `path`, relative to the project root. Scripts
+  often call it `entrypoint`.
+- Only `name`, `description`, `category`, `owner` and `path` are emitted.
+  Extra frontmatter keys such as `auto-activate` or `triggers` stay in each
+  SKILL.md but are not copied into the index.
+- Skills are sorted by name, not grouped by category.
+- The lock file is `.skillgate-lock.json` and has its own format. An older
+  script's lock can be deleted; the first `skillgate build` rebuilds the
+  lock from the skill files without changing them.
+
 ## Commands
 
 | Command | What it does | Exit code |
