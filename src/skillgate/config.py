@@ -27,7 +27,11 @@ _DERIVED_DEFAULTS = {
     "lock": ".skillgate-lock.json",
     "index": "index.json",
     "registry": "SKILLS.md",
+    "evals": "evals.json",
 }
+
+DEFAULT_EVAL_MODEL = "claude-opus-5-5"
+EFFORT_LEVELS = ("low", "medium", "high", "xhigh", "max")
 
 _KNOWN_KEYS = {
     "skills_dir",
@@ -36,6 +40,9 @@ _KNOWN_KEYS = {
     "description_min_length",
     "description_max_length",
     "require_routing",
+    "eval_model",
+    "eval_effort",
+    "eval_min_accuracy",
 }
 
 
@@ -51,11 +58,15 @@ class Config:
     lock: Path
     index: Path
     registry: Path
+    evals: Path
     required_fields: tuple[str, ...] = ("name", "description")
     description_min_length: int = 40
     # Claude Code truncates skill descriptions beyond 1024 characters.
     description_max_length: int = 1024
     require_routing: bool = True
+    eval_model: str = DEFAULT_EVAL_MODEL
+    eval_effort: str | None = None  # None: the model's own default
+    eval_min_accuracy: float = 1.0
     source: Path | None = None
 
     def rel(self, path: Path) -> str:
@@ -137,6 +148,18 @@ def _build(root: Path, table: dict[str, Any], source: Path | None) -> Config:
     if not isinstance(require_routing, bool):
         raise ConfigError(f"{source}: require_routing must be true or false")
 
+    eval_model = _string(table, "eval_model", DEFAULT_EVAL_MODEL, source)
+    eval_effort = table.get("eval_effort")
+    if eval_effort is not None and eval_effort not in EFFORT_LEVELS:
+        raise ConfigError(f"{source}: eval_effort must be one of {', '.join(EFFORT_LEVELS)}")
+    min_accuracy = table.get("eval_min_accuracy", 1.0)
+    if (
+        isinstance(min_accuracy, bool)
+        or not isinstance(min_accuracy, int | float)
+        or not 0 <= min_accuracy <= 1
+    ):
+        raise ConfigError(f"{source}: eval_min_accuracy must be a number from 0 to 1")
+
     return Config(
         root=root,
         skills_dir=skills_dir,
@@ -144,6 +167,9 @@ def _build(root: Path, table: dict[str, Any], source: Path | None) -> Config:
         description_min_length=min_len,
         description_max_length=max_len,
         require_routing=require_routing,
+        eval_model=eval_model,
+        eval_effort=eval_effort,
+        eval_min_accuracy=float(min_accuracy),
         source=source,
         **paths,
     )

@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Added
+
+- `skillgate eval [--dry-run] [--json] [--model M] [--cases FILE]`: routing
+  evals. Claude routes each case in `evals.json` to one skill (or none),
+  using the descriptions as `skillgate build` leaves them. Misses and
+  skill-to-skill collisions are reported, and the command exits 1 below
+  `eval_min_accuracy`. Opt-in: `pip install "skillgate[eval]"` plus an
+  Anthropic credential.
+- Settings `evals`, `eval_model`, `eval_effort`, `eval_min_accuracy`.
+
 ### Documentation
 
 - README: migration notes for projects replacing their own index script

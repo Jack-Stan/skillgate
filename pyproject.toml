@@ -25,7 +25,8 @@ classifiers = [
 dependencies = ["PyYAML>=6.0"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6"]
+dev = ["pytest>=8", "ruff>=0.6", "anthropic>=2.6"]
+eval = ["anthropic>=2.6"]
 
 [project.scripts]
 skillgate = "skillgate.cli:main"

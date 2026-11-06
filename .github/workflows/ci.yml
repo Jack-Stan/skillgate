@@ -39,3 +39,4 @@ jobs:
         run: |
           skillgate lint
           skillgate check
+          skillgate eval --dry-run
