@@ -106,6 +106,7 @@ before you switch. skillgate's index has a fixed shape:
 | `skillgate lint` | Validates frontmatter and routing entries (rules below). Read-only. | 1 on any finding |
 | `skillgate build` | Applies `routing.json` into each `SKILL.md`; rewrites `index.json`, `SKILLS.md` and the lock. | 1 if a problem was found (for example a skill with no routing entry) |
 | `skillgate check [--diff]` | Plans a build and writes nothing. | 1 if a build would change any file |
+| `skillgate eval [--dry-run] [--json] [--model M] [--cases FILE]` | Asks Claude to route each sample prompt to a skill and reports misroutes. Calls the API; opt-in. | 1 if accuracy is below `eval_min_accuracy` |
 
 Every command exits 2 on a configuration error, an unreadable
 `routing.json`, or bad usage.
@@ -196,7 +197,63 @@ required_fields = ["name", "description"]
 description_min_length = 40
 description_max_length = 1024
 require_routing = true      # false: skills without an entry are fine, and routing.json is optional
+evals = ".claude/skills/evals.json"           # default: <skills_dir>/evals.json
+eval_model = "claude-opus-5-5"
+# eval_effort = "low"       # optional: low, medium, high, xhigh or max; unset = model default
+eval_min_accuracy = 1.0     # `skillgate eval` exits 1 below this
 ```
+
+## Routing evals
+
+Lint and check prove the skills folder is consistent. They can't prove
+Claude picks the right skill. `skillgate eval` tests that directly. Write
+the requests you expect, and which skill each should land on, in
+`evals.json`:
+
+```json
+{
+  "cases": [
+    {"prompt": "Write the announcement for the 2.0 release.", "expect": "release-notes"},
+    {"prompt": "Bring CHANGELOG.md up to date.", "expect": "changelog-writer"},
+    {"prompt": "What's the time complexity of quicksort?", "expect": null}
+  ]
+}
+```
+
+`expect` is a skill name, or `null` when no skill should fire. Then:
+
+```bash
+python -m pip install "skillgate[eval]"   # adds the Anthropic SDK
+skillgate eval --dry-run                  # shows the exact prompt; no API calls
+skillgate eval
+```
+
+Each case is one Messages API call. Claude sees the skill names and
+descriptions exactly as `skillgate build` leaves them, routing clauses
+included, and has to answer with one skill name or `none`. Structured output
+guarantees the answer is a real skill name. The output lists every miss with
+Claude's one-line reason, plus a **Collisions** section: pairs of real skills
+that Claude confused, ranked by count. Those are the descriptions to sharpen,
+usually by adding an `avoid` entry.
+
+Things to know:
+
+- **It costs money.** `--dry-run` prints the call count first. The skill list
+  is sent as a cached system prompt, so after the first case most input
+  tokens are cache reads. The summary line reports the token totals.
+- **It needs a credential.** The Anthropic SDK finds it on its own:
+  `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, or an `ant auth login` profile.
+  In CI, run it as a separate, manually triggered or scheduled job with the key
+  as a secret, not on every push.
+- **It is a model's judgement, not a unit test.** Re-run before trusting a
+  single miss. Set `eval_min_accuracy` below 1.0 if your cases include
+  genuinely ambiguous prompts.
+- **No refusal fallback is configured.** If the model declines a case, that
+  case is reported as an error, not silently re-run on a different model.
+  A routing result from another model would measure something else.
+- **It approximates Claude Code's routing, it doesn't replay it.** The prompt
+  is skillgate's own. Use it to compare descriptions against each other, not
+  as a prediction of one particular Claude Code session.
 
 ## Lint rules
 
@@ -260,9 +317,8 @@ as the notes.
 
 ## Roadmap
 
-- **v0.3:** routing evals. Run sample prompts against the real skill set and
-  report which skill was chosen, so collisions show up as failing cases rather
-  than as hunches. This needs an API key, so it will be opt-in.
+- Let lint check `evals.json` (expected skills exist) without calling the API.
+- Repeat each case N times and report how stable the routing is.
 
 skillgate doesn't rewrite your descriptions for you, and that isn't planned.
 

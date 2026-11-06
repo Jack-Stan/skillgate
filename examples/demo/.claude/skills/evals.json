@@ -1,0 +1,14 @@
+{
+  "_comment": "Routing eval cases for `skillgate eval`: a prompt and the skill it should land on, or null when no skill should fire.",
+  "cases": [
+    {"prompt": "Bring CHANGELOG.md up to date with everything merged since v1.4.0.", "expect": "changelog-writer"},
+    {"prompt": "Write the announcement for the 2.0 release: what's new for users and how to upgrade.", "expect": "release-notes"},
+    {"prompt": "We're tagging 3.1 tomorrow. Draft the blog-style notes our users will read.", "expect": "release-notes"},
+    {"prompt": "Group the commits since the last tag under Added, Changed and Fixed.", "expect": "changelog-writer"},
+    {"prompt": "Give me a commit message for what I've staged.", "expect": "commit-message"},
+    {"prompt": "Is this migration safe to run on the orders table during business hours?", "expect": "sql-review"},
+    {"prompt": "This README table is a mess, the columns don't line up. Fix it.", "expect": "markdown-tables"},
+    {"prompt": "Turn the query output below into a tidy Markdown table.", "expect": "markdown-tables"},
+    {"prompt": "What's the time complexity of quicksort?", "expect": null}
+  ]
+}
