@@ -158,4 +158,50 @@ def test_all_rules_run_and_are_reported(empty):
 
 
 def test_every_rule_is_documented():
-    assert sorted(RULES) == [f"SG{n:03d}" for n in range(1, 12)]
+    assert sorted(RULES) == [f"SG{n:03d}" for n in range(1, 13)]
+
+
+def _write_evals(project, cases):
+    (project.skills / "evals.json").write_text(json.dumps({"cases": cases}))
+
+
+def test_evals_file_is_optional(demo):
+    (demo.skills / "evals.json").unlink()
+    assert codes(demo) == []
+
+
+def test_evals_problems_are_all_reported(demo):
+    _write_evals(
+        demo,
+        [
+            {"prompt": "fine", "expect": "sql-review"},
+            {"prompt": "bad target", "expect": "ghost"},
+            {"prompt": "no expect"},
+            {"prompt": "fine", "expect": None},
+            {"prompt": "typo", "expect": None, "expected": "x"},
+        ],
+    )
+    findings = lint(demo.config)
+    assert {f.code for f in findings} == {"SG012"}
+    messages = [f.message for f in findings]
+    assert "cases[1]: expect 'ghost' is not a skill in this project" in messages
+    assert 'cases[2]: missing "expect" (a skill name, or null for no skill)' in messages
+    assert "cases[3]: duplicate prompt" in messages
+    assert "cases[4]: unknown key(s) expected" in messages
+    assert len(findings) == 4
+
+
+def test_evals_invalid_json(demo):
+    (demo.skills / "evals.json").write_text("{")
+    (finding,) = lint(demo.config)
+    assert finding.code == "SG012"
+    assert finding.path == ".claude/skills/evals.json"
+    assert "invalid JSON" in finding.message
+
+
+def test_lint_never_calls_the_api(demo, monkeypatch):
+    def boom():
+        raise AssertionError("lint must not build an API client")
+
+    monkeypatch.setattr("skillgate.evals.make_client", boom)
+    assert demo.run("lint").code == 0

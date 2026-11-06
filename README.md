@@ -220,7 +220,9 @@ the requests you expect, and which skill each should land on, in
 }
 ```
 
-`expect` is a skill name, or `null` when no skill should fire. Then:
+`expect` is a skill name, or `null` when no skill should fire.
+`skillgate lint` validates this file for free (SG012), so a typo in an
+expected skill fails in CI before any paid run. Then:
 
 ```bash
 python -m pip install "skillgate[eval]"   # adds the Anthropic SDK
@@ -270,6 +272,7 @@ Things to know:
 | SG009 | `routing.json` entry has no skill folder |
 | SG010 | `routing.json` is missing or invalid |
 | SG011 | a list-form `avoid` item ends in `(skill-name)` naming a skill that doesn't exist, or the skill itself |
+| SG012 | `evals.json` (if present) is invalid: bad JSON, unknown keys, empty prompts, duplicate prompts, or an `expect` that isn't a skill |
 
 Every rule runs to completion, so one run reports every problem.
 
@@ -317,7 +320,6 @@ as the notes.
 
 ## Roadmap
 
-- Let lint check `evals.json` (expected skills exist) without calling the API.
 - Repeat each case N times and report how stable the routing is.
 
 skillgate doesn't rewrite your descriptions for you, and that isn't planned.
