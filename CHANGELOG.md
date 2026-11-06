@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.3.0] - 2026-11-06
 
 ### Added
 
@@ -48,5 +48,6 @@
 - Example project in `examples/demo`, with a vendored skill.
 - pre-commit hook definitions.
 
+[0.3.0]: https://github.com/Jack-Stan/skillgate/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Jack-Stan/skillgate/releases/tag/v0.2.0
 [0.1.0]: https://github.com/Jack-Stan/skillgate/releases/tag/v0.1.0
