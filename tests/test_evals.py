@@ -77,6 +77,7 @@ def test_demo_cases_are_valid(demo):
         ([{"prompt": "x", "expect": "ghost"}], "'ghost' is not a skill"),
         ([{"prompt": "x", "expect": None, "expected": "a"}], "unknown key"),
         (["just a string"], "expected an object"),
+        ([{"prompt": "x", "expect": None}, {"prompt": " x ", "expect": None}], "duplicate"),
     ],
 )
 def test_invalid_cases(demo, cases, message):

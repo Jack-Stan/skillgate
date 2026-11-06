@@ -113,36 +113,57 @@ class Report:
 
 
 def load_cases(path: Path, skill_names: set[str]) -> list[Case]:
-    """Read and validate the cases file. Every expected skill must exist."""
+    """Read and validate the cases file. Raises EvalError on the first problem."""
+    cases, problems = check_cases(path, skill_names)
+    if problems:
+        raise EvalError(f"{path}: {problems[0]}")
+    return cases
+
+
+def check_cases(path: Path, skill_names: set[str]) -> tuple[list[Case], list[str]]:
+    """Validate the cases file without calling anything. Returns (cases, problems).
+
+    Every problem is collected, so `skillgate lint` can report them all at once.
+    """
     if not path.is_file():
-        raise EvalError(f"cases file not found: {path}")
+        return [], ["cases file not found"]
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
-        raise EvalError(f"{path}: invalid JSON: {exc}") from exc
+        return [], [f"invalid JSON: {exc}"]
     if not isinstance(data, dict) or not isinstance(data.get("cases"), list):
-        raise EvalError(f'{path}: expected an object with a "cases" list')
+        return [], ['expected an object with a "cases" list']
 
-    cases = []
+    cases: list[Case] = []
+    problems: list[str] = []
+    seen: set[str] = set()
     for i, raw in enumerate(data["cases"]):
-        where = f"{path}: cases[{i}]"
+        where = f"cases[{i}]"
         if not isinstance(raw, dict):
-            raise EvalError(f"{where}: expected an object")
+            problems.append(f"{where}: expected an object")
+            continue
         unknown = sorted(k for k in raw if k not in CASE_KEYS and not k.startswith("_"))
         if unknown:
-            raise EvalError(f"{where}: unknown key(s) {', '.join(unknown)}")
+            problems.append(f"{where}: unknown key(s) {', '.join(unknown)}")
         prompt = raw.get("prompt")
         if not isinstance(prompt, str) or not prompt.strip():
-            raise EvalError(f"{where}: prompt must be a non-empty string")
+            problems.append(f"{where}: prompt must be a non-empty string")
+            continue
         if "expect" not in raw:
-            raise EvalError(f'{where}: missing "expect" (a skill name, or null for no skill)')
+            problems.append(f'{where}: missing "expect" (a skill name, or null for no skill)')
+            continue
         expect = raw["expect"]
         if expect is not None and (not isinstance(expect, str) or expect not in skill_names):
-            raise EvalError(f"{where}: expect {expect!r} is not a skill in this project")
+            problems.append(f"{where}: expect {expect!r} is not a skill in this project")
+            continue
+        key = " ".join(prompt.split())
+        if key in seen:
+            problems.append(f"{where}: duplicate prompt")
+        seen.add(key)
         cases.append(Case(prompt=prompt.strip(), expect=expect))
-    if not cases:
-        raise EvalError(f"{path}: no cases")
-    return cases
+    if not data["cases"]:
+        problems.append("no cases")
+    return cases, problems
 
 
 def skill_catalogue(config: Config) -> list[tuple[str, str]]:

@@ -11,6 +11,8 @@
   `eval_min_accuracy`. Opt-in: `pip install "skillgate[eval]"` plus an
   Anthropic credential.
 - Settings `evals`, `eval_model`, `eval_effort`, `eval_min_accuracy`.
+- Lint rule SG012: `evals.json`, when present, is validated without calling
+  the API (JSON, keys, empty or duplicate prompts, expected skills exist).
 
 ### Documentation
 

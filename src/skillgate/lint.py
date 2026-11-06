@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from skillgate.config import Config
+from skillgate.evals import check_cases
 from skillgate.routing import Route, RoutingError, load_routing
 from skillgate.skills import (
     MAX_NAME_LENGTH,
@@ -28,6 +29,7 @@ RULES = {
     "SG009": "routing entry has no skill folder",
     "SG010": "routing file is missing or invalid",
     "SG011": "avoid clause points to a skill that does not exist",
+    "SG012": "evals.json is invalid",
 }
 
 
@@ -123,5 +125,12 @@ def lint(config: Config) -> list[Finding]:
                         "SG011",
                         f"'{name}' points to '{ref}', which is not a skill",
                     )
+
+    # evals.json is optional; when it exists, check it here so a typo in an
+    # expected skill fails in CI for free, not on a paid `skillgate eval` run.
+    if config.evals.is_file():
+        _, problems = check_cases(config.evals, {f.name for f in folders})
+        for problem in problems:
+            add(config.rel(config.evals), "SG012", problem)
 
     return sorted(findings)
